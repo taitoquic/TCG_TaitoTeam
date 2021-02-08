@@ -2,33 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardController : MonoBehaviour
+public class CardController : MonoBehaviour, ISceneDragable
 {
-    //public Camera cam;
-    float distance;
-    Ray ray;
-    Vector3 initialPosition;
+    public MeshCollider SceneDragableMesh
+    {
+        get
+        {
+            return GetComponent<MeshCollider>();
+        }
+    }
+    public Transform SceneDragableTransform
+    {
+        get
+        {
+            return transform;
+        }
+    }
+    public DragableInScene OnDragableSelected { get; set; }
 
     public CardAsset card;
+
 
     public delegate void onCardMove(Transform cardTransform);
     public static event onCardMove OnDrop;
 
     public delegate void CardActions();
+    public CardActions OnCardPickedByMouse;
     public static event CardActions OnCardEnd;
+
     private void OnMouseDown()
     {
-        GetComponent<MeshCollider>().enabled = false;
-        distance = Vector3.Distance(Camera.main.transform.position, transform.position);
-        initialPosition = transform.position;
-        card.PlayCard();
+        OnCardPickedByMouse += card.PlayCard;
+        OnCardPickedByMouse += SetSceneDragable;
+        OnCardPickedByMouse?.Invoke();
     }
 
     private void OnMouseDrag()
     {
-        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        transform.position = ray.GetPoint(distance);
-
+        OnDragableSelected?.Invoke(this);
         //if (Physics.Raycast(ray, out RaycastHit hitInfo))
         //{
         //    Debug.Log(hitInfo.collider.gameObject.name);
@@ -37,13 +48,23 @@ public class CardController : MonoBehaviour
 
     private void OnMouseUp()
     {
+        OnCardPickedByMouse?.Invoke();
+        //if (OnDrop == null) OnDrop += CardResetPosition;
         OnDrop?.Invoke(transform);
         OnCardEnd?.Invoke();
-        GetComponent<MeshCollider>().enabled = true;
+        //currentSceneDragable.SceneDragableMesh.enabled = true;
     }
 
-    void CardResetPosition()
+    public void SetSceneDragable()
     {
-        //transform.position =
+        GameManager.instance.sceneDragableFeature.CurrentSceneDragable = this;
+        OnCardPickedByMouse += SetSceneDragableNull;
+        OnCardPickedByMouse -= card.PlayCard;
+        OnCardPickedByMouse -= SetSceneDragable;
+    }
+    public void SetSceneDragableNull()
+    {
+        GameManager.instance.sceneDragableFeature.CurrentSceneDragable = null;
+        OnCardPickedByMouse -= SetSceneDragableNull;
     }
 }

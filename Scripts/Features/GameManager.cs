@@ -12,6 +12,6 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    //public CardController currentCard;
+    public SceneDragableFeature sceneDragableFeature;
 
 }
