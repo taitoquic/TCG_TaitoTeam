@@ -9,6 +9,8 @@ public abstract class CardAsset : ScriptableObject
     public Sprite art;
     public CardCollection cardCollection;
     public CardLevel cardLevel;
+
+    public abstract void PlayCard();
 }
 public enum CardCollection { Basic}
 public enum CardLevel { Commun, Rare, Epic, Legendary }
