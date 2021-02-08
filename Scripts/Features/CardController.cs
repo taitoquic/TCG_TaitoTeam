@@ -18,28 +18,44 @@ public class CardController : MonoBehaviour, ISceneDragable
             return transform;
         }
     }
-    public DragableInScene OnDragableSelected { get; set; }
+    public DragableActions OnDragableActions
+    {
+        get
+        {
+            return OnCardDragged;
+        }
+        set
+        {
+            OnCardDragged += value;
+        }
+    }
+    public ISceneDragable CurrentSceneDragable
+    {
+        set
+        {
+            GameManager.instance.sceneDragableFeature.CurrentSceneDragable = value;
+        }
+    }
 
     public CardAsset card;
+    public DragableActions OnCardDragged;
 
 
     public delegate void onCardMove(Transform cardTransform);
     public static event onCardMove OnDrop;
 
     public delegate void CardActions();
-    public CardActions OnCardPickedByMouse;
     public static event CardActions OnCardEnd;
 
     private void OnMouseDown()
     {
-        OnCardPickedByMouse += card.PlayCard;
-        OnCardPickedByMouse += SetSceneDragable;
-        OnCardPickedByMouse?.Invoke();
+        OnCardDragged += card.PlayCard;
+        CurrentSceneDragable = this;
     }
 
     private void OnMouseDrag()
     {
-        OnDragableSelected?.Invoke(this);
+        OnCardDragged?.Invoke();
         //if (Physics.Raycast(ray, out RaycastHit hitInfo))
         //{
         //    Debug.Log(hitInfo.collider.gameObject.name);
@@ -48,23 +64,10 @@ public class CardController : MonoBehaviour, ISceneDragable
 
     private void OnMouseUp()
     {
-        OnCardPickedByMouse?.Invoke();
+        CurrentSceneDragable = null;
         //if (OnDrop == null) OnDrop += CardResetPosition;
         OnDrop?.Invoke(transform);
         OnCardEnd?.Invoke();
         //currentSceneDragable.SceneDragableMesh.enabled = true;
-    }
-
-    public void SetSceneDragable()
-    {
-        GameManager.instance.sceneDragableFeature.CurrentSceneDragable = this;
-        OnCardPickedByMouse += SetSceneDragableNull;
-        OnCardPickedByMouse -= card.PlayCard;
-        OnCardPickedByMouse -= SetSceneDragable;
-    }
-    public void SetSceneDragableNull()
-    {
-        GameManager.instance.sceneDragableFeature.CurrentSceneDragable = null;
-        OnCardPickedByMouse -= SetSceneDragableNull;
     }
 }
