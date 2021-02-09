@@ -9,12 +9,13 @@ public class Minion : CardAsset
     public override void PlayCard()
     {
         BattleDropeablePlace.OnMinionSpriteInImage += SetMinionPreviewSprite;
-        CardController.OnCardEnd += NullMinionSprite;
+        BattleDropeablePlace.OnDropMove += MoveDropeable;
+        SceneDragableFeature.OnSceneDragableEnd += NullMinionSprite;
     }
 
     Sprite SetMinionPreviewSprite()
     {
-        CardController.OnCardEnd -= NullMinionSprite;
+        SceneDragableFeature.OnSceneDragableEnd -= NullMinionSprite;
         BattleDropeablePlace.OnMinionSpriteInImage -= SetMinionPreviewSprite;
         return minionPreview;
     }
@@ -22,6 +23,18 @@ public class Minion : CardAsset
     void NullMinionSprite()
     {
         BattleDropeablePlace.OnMinionSpriteInImage -= SetMinionPreviewSprite;
-        CardController.OnCardEnd -= NullMinionSprite;
+        BattleDropeablePlace.OnDropMove -= MoveDropeable;
+        SceneDragableFeature.OnSceneDragableEnd -= NullMinionSprite;
+    }
+    public IEnumerator MoveDropeable(ISceneDragable currentSceneDragable, Vector3 dropPosition)
+    {
+        float sMoothing = 10.0f;
+        while (Vector3.Distance(currentSceneDragable.SceneDragableTransform.position, dropPosition) > 0.05f)
+        {
+            currentSceneDragable.SceneDragableTransform.position = Vector3.Lerp(currentSceneDragable.SceneDragableTransform.position, dropPosition, sMoothing * Time.deltaTime);
+            yield return null;
+        }
+        currentSceneDragable.SceneDragableTransform.position = dropPosition;
+        BattleDropeablePlace.OnDropMove -= MoveDropeable;
     }
 }

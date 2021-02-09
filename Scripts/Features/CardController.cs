@@ -22,12 +22,12 @@ public class CardController : MonoBehaviour, ISceneDragable
     {
         get
         {
-            return GameManager.instance.sceneDragableFeature.OnDragableSceneActions;
+            return GameManager.instance.sceneDragableFeature.OnSceneDragableActions;
         }
 
         set
         {
-            GameManager.instance.sceneDragableFeature.OnDragableSceneActions += value;
+            GameManager.instance.sceneDragableFeature.OnSceneDragableActions += value;
         }
     }
     public bool IsDraggingSceneDragable
@@ -40,13 +40,6 @@ public class CardController : MonoBehaviour, ISceneDragable
 
     public CardAsset card;
 
-
-    public delegate void onCardMove(Transform cardTransform);
-    public static event onCardMove OnDrop;
-
-    public delegate void CardActions();
-    public static event CardActions OnCardEnd;
-
     private void OnMouseDown()
     {
         IsDraggingSceneDragable = true;
@@ -57,19 +50,11 @@ public class CardController : MonoBehaviour, ISceneDragable
     private void OnMouseDrag()
     {
         OnDragableActions?.Invoke(this);
-        //if (Physics.Raycast(ray, out RaycastHit hitInfo))
-        //{
-        //    Debug.Log(hitInfo.collider.gameObject.name);
-        //}
     }
 
     private void OnMouseUp()
     {
         IsDraggingSceneDragable = false;
         OnDragableActions?.Invoke(this);
-        //if (OnDrop == null) OnDrop += CardResetPosition;
-        OnDrop?.Invoke(transform);
-        OnCardEnd?.Invoke();
-        //currentSceneDragable.SceneDragableMesh.enabled = true;
     }
 }

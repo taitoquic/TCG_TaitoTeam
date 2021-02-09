@@ -14,7 +14,7 @@ public class PreviewDropMinionManager : MonoBehaviour
             if (value!=null)
             {
                 BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
-                CardController.OnCardEnd += EndMinionPreview;
+                SceneDragableFeature.OnSceneDragableEnd += EndMinionPreview;
             }
                 minionPreviewImage.sprite = value;
         }
@@ -40,6 +40,6 @@ public class PreviewDropMinionManager : MonoBehaviour
         if (gameObject.activeInHierarchy) DesactiveMinionPreview(Vector3.zero);
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
         MinionPreview = null;
-        CardController.OnCardEnd -= EndMinionPreview;
+        SceneDragableFeature.OnSceneDragableEnd -= EndMinionPreview;
     }
 }

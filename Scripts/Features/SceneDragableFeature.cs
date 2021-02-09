@@ -8,15 +8,14 @@ public class SceneDragableFeature : MonoBehaviour
     float distance;
     Ray ray;
     Vector3 initialPosition;
-    //ISceneDragable currentSceneDragable;
 
-    public DragableActions OnDragableSceneActions;
+    public DragableActions OnSceneDragableActions;
 
-    //public delegate void onCardMove(Transform cardTransform);
-    //public static event onCardMove OnDrop;
+    public delegate void sceneDragableMove(ISceneDragable currentSceneDragable);
+    public static event sceneDragableMove OnDrop;
 
-    //public delegate void CardActions();
-    //public static event CardActions OnCardEnd;
+    public delegate void sceneDragabledActions();
+    public static event sceneDragabledActions OnSceneDragableEnd;
 
     public bool DraggingCurrentSceneDragable
     {
@@ -24,12 +23,12 @@ public class SceneDragableFeature : MonoBehaviour
         {
             if (value)
             {
-                OnDragableSceneActions += OnSceneDragableMouseDown;
+                OnSceneDragableActions += OnSceneDragableMouseDown;
             }
             else
             {
-                OnDragableSceneActions -= OnSceneDragableMouseDrag;
-                OnDragableSceneActions += OnSceneDragableMouseUp;
+                OnSceneDragableActions -= OnSceneDragableMouseDrag;
+                OnSceneDragableActions += OnSceneDragableMouseUp;
             }
         }
     }
@@ -39,8 +38,8 @@ public class SceneDragableFeature : MonoBehaviour
         currentSceneDragable.SceneDragableMesh.enabled = false;
         distance = Vector3.Distance(cam.transform.position, currentSceneDragable.SceneDragableTransform.position);
         initialPosition = currentSceneDragable.SceneDragableTransform.position;
-        OnDragableSceneActions -= OnSceneDragableMouseDown;
-        OnDragableSceneActions += OnSceneDragableMouseDrag;
+        OnSceneDragableActions -= OnSceneDragableMouseDown;
+        OnSceneDragableActions += OnSceneDragableMouseDrag;
     }
 
     public void OnSceneDragableMouseDrag(ISceneDragable currentSceneDragable)
@@ -52,15 +51,15 @@ public class SceneDragableFeature : MonoBehaviour
     void OnSceneDragableMouseUp(ISceneDragable currentSceneDragable)
     {
         currentSceneDragable.SceneDragableMesh.enabled = true;
-        //if (OnDrop == null) OnDrop += CardResetPosition;
-        //OnDrop?.Invoke(transform);
-        //OnCardEnd?.Invoke();
-        OnDragableSceneActions -= OnSceneDragableMouseUp;
+        if (OnDrop == null) OnDrop += CardResetPosition;
+        OnDrop?.Invoke(currentSceneDragable);
+        OnSceneDragableEnd?.Invoke();
+        OnSceneDragableActions -= OnSceneDragableMouseUp;
     }
 
     void CardResetPosition(ISceneDragable currentSceneDragable)
     {
         currentSceneDragable.SceneDragableTransform.position = initialPosition;
-        //OnDrop -= CardResetPosition;
+        OnDrop -= CardResetPosition;
     }
 }

@@ -9,6 +9,9 @@ public class BattleDropeablePlace : MonoBehaviour
 
     public delegate Sprite MinionPreviewSprite();
     public static event MinionPreviewSprite OnMinionSpriteInImage;
+
+    public delegate IEnumerator DropeableMovement(ISceneDragable currentSceneDragable, Vector3 dropPosition);
+    public static event DropeableMovement OnDropMove;
     int PositionInLine
     {
         get
@@ -54,33 +57,19 @@ public class BattleDropeablePlace : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        //Debug.Log("hola");
         if(OnMinionSpriteInImage!= null) PreviewBF.MinionPreview = OnMinionSpriteInImage?.Invoke();
         OnActiveMinionPreview?.Invoke(DropPosition);
-        CardController.OnDrop += MoveCard;
+        SceneDragableFeature.OnDrop += MoveCard;
     }
 
     private void OnMouseExit()
     {
         OnActiveMinionPreview?.Invoke(DropPosition);
-        CardController.OnDrop -= MoveCard;
+        SceneDragableFeature.OnDrop -= MoveCard;
     }
 
-    void MoveCard(Transform cardTransform)
+    void MoveCard(ISceneDragable currentSceneDragable)
     {
-        //cardTransform.position = DropPosition;
-        StartCoroutine(DropMinion(cardTransform));
-    }
-
-    IEnumerator DropMinion(Transform cardTransform)
-    {
-        float sMoothing = 10.0f;
-        while (Vector3.Distance(cardTransform.position, DropPosition) > 0.05f)
-        {
-            cardTransform.position = Vector3.Lerp(cardTransform.position, DropPosition, sMoothing * Time.deltaTime);
-            //cardTransform.rotation = Quaternion.Lerp(cardTransform.rotation, Quaternion.Euler(new Vector3(90f, 0, 0)), sMoothing * Time.deltaTime);
-            yield return null;
-        }
-        cardTransform.position = DropPosition;
+        StartCoroutine(OnDropMove.Invoke(currentSceneDragable, DropPosition));
     }
 }
