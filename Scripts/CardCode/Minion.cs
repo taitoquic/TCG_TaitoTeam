@@ -1,31 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [CreateAssetMenu(menuName = "Card/Minion", order = 0)]
-public class Minion : CardAsset
+public class Minion : CardAsset, IDropeable
 {
     public Sprite minionPreview;
+    
     public override void PlayCard()
     {
-        BattleDropeablePlace.OnMinionSpriteInImage += SetMinionPreviewSprite;
+        PlayDropeable();
+    }
+    public void PlayDropeable()
+    {
+        BattleDropeablePlace.OnMinionSpriteInImage += SetPreviewSprte;
         BattleDropeablePlace.OnDropMove += MoveDropeable;
-        SceneDragableFeature.OnSceneDragableEnd += NullMinionSprite;
+        SceneDragableFeature.OnSceneDragableEnd += NullPreviewSprite;
     }
 
-    Sprite SetMinionPreviewSprite()
+    public void SetPreviewSprte(Image previewImage)
     {
-        SceneDragableFeature.OnSceneDragableEnd -= NullMinionSprite;
-        BattleDropeablePlace.OnMinionSpriteInImage -= SetMinionPreviewSprite;
-        return minionPreview;
+        previewImage.sprite = minionPreview;
+        BattleDropeablePlace.OnMinionSpriteInImage -= SetPreviewSprte;
     }
 
-    void NullMinionSprite()
+    public void NullPreviewSprite()
     {
-        BattleDropeablePlace.OnMinionSpriteInImage -= SetMinionPreviewSprite;
+        BattleDropeablePlace.OnMinionSpriteInImage -= SetPreviewSprte;
         BattleDropeablePlace.OnDropMove -= MoveDropeable;
-        SceneDragableFeature.OnSceneDragableEnd -= NullMinionSprite;
+        SceneDragableFeature.OnSceneDragableEnd -= NullPreviewSprite;
     }
+
     public IEnumerator MoveDropeable(ISceneDragable currentSceneDragable, Vector3 dropPosition)
     {
         float sMoothing = 10.0f;
@@ -36,5 +42,6 @@ public class Minion : CardAsset
         }
         currentSceneDragable.SceneDragableTransform.position = dropPosition;
         BattleDropeablePlace.OnDropMove -= MoveDropeable;
+        SceneDragableFeature.OnSceneDragableEnd -= NullPreviewSprite;
     }
 }

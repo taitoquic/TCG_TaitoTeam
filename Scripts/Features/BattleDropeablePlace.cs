@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleDropeablePlace : MonoBehaviour
 {
     public delegate void ActiveMinionPreview(Vector3 dropPosition);
     public static event ActiveMinionPreview OnActiveMinionPreview;
 
-    public delegate Sprite MinionPreviewSprite();
+    public delegate void MinionPreviewSprite(Image previewImage);
     public static event MinionPreviewSprite OnMinionSpriteInImage;
 
     public delegate IEnumerator DropeableMovement(ISceneDragable currentSceneDragable, Vector3 dropPosition);
@@ -47,6 +48,7 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(1).GetComponent<PreviewDropMinionManager>();
         }
     }
+
     Vector3 DropPosition
     {
         get
@@ -57,18 +59,18 @@ public class BattleDropeablePlace : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        if(OnMinionSpriteInImage!= null) PreviewBF.MinionPreview = OnMinionSpriteInImage?.Invoke();
+        OnMinionSpriteInImage?.Invoke(PreviewBF.MinionPreviewImage);
         OnActiveMinionPreview?.Invoke(DropPosition);
-        SceneDragableFeature.OnDrop += MoveCard;
+        SceneDragableFeature.OnDrop += DropSceneDraggable;
     }
 
     private void OnMouseExit()
     {
         OnActiveMinionPreview?.Invoke(DropPosition);
-        SceneDragableFeature.OnDrop -= MoveCard;
+        SceneDragableFeature.OnDrop -= DropSceneDraggable;
     }
 
-    void MoveCard(ISceneDragable currentSceneDragable)
+    void DropSceneDraggable(ISceneDragable currentSceneDragable)
     {
         StartCoroutine(OnDropMove.Invoke(currentSceneDragable, DropPosition));
     }
