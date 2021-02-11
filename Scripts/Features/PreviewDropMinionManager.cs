@@ -7,12 +7,16 @@ public class PreviewDropMinionManager : MonoBehaviour
 {
     public Image minionPreviewImage;
 
+    private void Start()
+    {
+        BattleDropeablePlace.filledPositions = new List<int[]>(2);
+    }
     public Image MinionPreviewImage
     {
         get
         {
             BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
-            SceneDragableFeature.OnSceneDragableEnd += EndMinionPreview;
+            SceneDragableFeature.OnSceneDragableDragEnd += EndMinionPreview;
             return minionPreviewImage;
         }
     }
@@ -20,7 +24,7 @@ public class PreviewDropMinionManager : MonoBehaviour
     public void ActiveMinionPreview(Vector3 dropPosition)
     {
         gameObject.SetActive(true);
-        transform.position = dropPosition;
+        minionPreviewImage.transform.position = dropPosition;
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
         BattleDropeablePlace.OnActiveMinionPreview += DesactiveMinionPreview;
     }
@@ -37,6 +41,6 @@ public class PreviewDropMinionManager : MonoBehaviour
         if (gameObject.activeInHierarchy) DesactiveMinionPreview(Vector3.zero);
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
         minionPreviewImage.sprite = null;
-        SceneDragableFeature.OnSceneDragableEnd -= EndMinionPreview;
+        SceneDragableFeature.OnSceneDragableDragEnd -= EndMinionPreview;
     }
 }

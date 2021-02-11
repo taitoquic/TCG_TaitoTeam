@@ -5,13 +5,15 @@ using UnityEngine.UI;
 
 public class BattleDropeablePlace : MonoBehaviour
 {
+    public static List<int[]> filledPositions;
+
     public delegate void ActiveMinionPreview(Vector3 dropPosition);
     public static event ActiveMinionPreview OnActiveMinionPreview;
 
-    public delegate void MinionPreviewSprite(Image previewImage);
-    public static event MinionPreviewSprite OnMinionSpriteInImage;
+    public delegate void CardIsPicked(Image previewImage);
+    public static event CardIsPicked OnMinionPicked;
 
-    public delegate IEnumerator DropeableMovement(ISceneDragable currentSceneDragable, Vector3 dropPosition);
+    public delegate IEnumerator DropeableMovement(Transform cardTransform, Vector3 dropPosition);
     public static event DropeableMovement OnDropMove;
     int PositionInLine
     {
@@ -25,6 +27,13 @@ public class BattleDropeablePlace : MonoBehaviour
         get
         {
             return transform.parent.GetSiblingIndex();
+        }
+    }
+    int[] ListIdentificator
+    {
+        get
+        {
+            return new int[2] { IndexLine, PositionInLine };
         }
     }
     Transform BattleField
@@ -41,6 +50,21 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(0);
         }
     }
+    //Transform CollidersBF
+    //{
+    //    get
+    //    {
+    //        return transform.parent.parent;
+    //    }
+    //}
+
+    //public bool SetDropBF
+    //{
+    //    set
+    //    {
+    //        CollidersBF.gameObject.SetActive(value);
+    //    }
+    //}
     PreviewDropMinionManager PreviewBF
     {
         get
@@ -48,7 +72,6 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(1).GetComponent<PreviewDropMinionManager>();
         }
     }
-
     Vector3 DropPosition
     {
         get
@@ -59,19 +82,22 @@ public class BattleDropeablePlace : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        OnMinionSpriteInImage?.Invoke(PreviewBF.MinionPreviewImage);
+        OnMinionPicked?.Invoke(PreviewBF.MinionPreviewImage);
+        if (OnActiveMinionPreview == null) return;
         OnActiveMinionPreview?.Invoke(DropPosition);
-        SceneDragableFeature.OnDrop += DropSceneDraggable;
+        CardController.OnCardDrop += DropToBattlefield;
     }
 
     private void OnMouseExit()
     {
+        if (OnActiveMinionPreview == null) return;
         OnActiveMinionPreview?.Invoke(DropPosition);
-        SceneDragableFeature.OnDrop -= DropSceneDraggable;
+        CardController.OnCardDrop -= DropToBattlefield;
     }
-
-    void DropSceneDraggable(ISceneDragable currentSceneDragable)
+    void DropToBattlefield(Transform cardTransform)
     {
-        StartCoroutine(OnDropMove.Invoke(currentSceneDragable, DropPosition));
+        filledPositions.Add(ListIdentificator);
+        StartCoroutine(OnDropMove.Invoke(cardTransform, DropPosition));
+        CardController.OnCardDrop -= DropToBattlefield;
     }
 }

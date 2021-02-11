@@ -13,5 +13,6 @@ public class GameManager : MonoBehaviour
     #endregion
 
     public SceneDragableFeature sceneDragableFeature;
+    public DropeableBoardPlace dropeableBoardPlace;
 
 }

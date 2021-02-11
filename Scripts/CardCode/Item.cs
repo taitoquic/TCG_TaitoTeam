@@ -6,6 +6,6 @@ public abstract class Item : CardAsset
 {
     public override void PlayCard()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("hola soy item");
     }
 }

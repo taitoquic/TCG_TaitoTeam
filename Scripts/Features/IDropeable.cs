@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public interface IDropeable 
 {
-
     public void PlayDropeable();
-    public void SetPreviewSprte(Image previewImage);
+    public void ActiveBoardDropPlaceable();
+    public void SetPreviewSprite(Image previewImage);
     public void NullPreviewSprite();
-    IEnumerator MoveDropeable(ISceneDragable currentSceneDragable, Vector3 dropPosition);
+    IEnumerator MoveDropeable(Transform dropeableTransform, Vector3 dropPosition);
 }

@@ -14,34 +14,39 @@ public class Minion : CardAsset, IDropeable
     }
     public void PlayDropeable()
     {
-        BattleDropeablePlace.OnMinionSpriteInImage += SetPreviewSprte;
+        ActiveBoardDropPlaceable();
+        BattleDropeablePlace.OnMinionPicked += SetPreviewSprite;
         BattleDropeablePlace.OnDropMove += MoveDropeable;
-        SceneDragableFeature.OnSceneDragableEnd += NullPreviewSprite;
+        SceneDragableFeature.OnSceneDragableDragEnd += NullPreviewSprite;
+    }
+    public void ActiveBoardDropPlaceable()
+    {
+        GameManager.instance.dropeableBoardPlace.ActiveBFDropeableColliders();
     }
 
-    public void SetPreviewSprte(Image previewImage)
+    public void SetPreviewSprite(Image previewImage)
     {
         previewImage.sprite = minionPreview;
-        BattleDropeablePlace.OnMinionSpriteInImage -= SetPreviewSprte;
+        BattleDropeablePlace.OnMinionPicked -= SetPreviewSprite;
     }
 
     public void NullPreviewSprite()
     {
-        BattleDropeablePlace.OnMinionSpriteInImage -= SetPreviewSprte;
+        BattleDropeablePlace.OnMinionPicked -= SetPreviewSprite;
         BattleDropeablePlace.OnDropMove -= MoveDropeable;
-        SceneDragableFeature.OnSceneDragableEnd -= NullPreviewSprite;
+        SceneDragableFeature.OnSceneDragableDragEnd -= NullPreviewSprite;
     }
 
-    public IEnumerator MoveDropeable(ISceneDragable currentSceneDragable, Vector3 dropPosition)
+    public IEnumerator MoveDropeable(Transform cardTransform, Vector3 dropPosition)
     {
         float sMoothing = 10.0f;
-        while (Vector3.Distance(currentSceneDragable.SceneDragableTransform.position, dropPosition) > 0.05f)
+        while (Vector3.Distance(cardTransform.position, dropPosition) > 0.05f)
         {
-            currentSceneDragable.SceneDragableTransform.position = Vector3.Lerp(currentSceneDragable.SceneDragableTransform.position, dropPosition, sMoothing * Time.deltaTime);
+            cardTransform.position = Vector3.Lerp(cardTransform.position, dropPosition, sMoothing * Time.deltaTime);
             yield return null;
         }
-        currentSceneDragable.SceneDragableTransform.position = dropPosition;
+        cardTransform.position = dropPosition;
         BattleDropeablePlace.OnDropMove -= MoveDropeable;
-        SceneDragableFeature.OnSceneDragableEnd -= NullPreviewSprite;
+        SceneDragableFeature.OnSceneDragableDragEnd -= NullPreviewSprite;
     }
 }

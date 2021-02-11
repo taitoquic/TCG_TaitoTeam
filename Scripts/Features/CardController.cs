@@ -34,11 +34,21 @@ public class CardController : MonoBehaviour, ISceneDragable
     {
         set
         {
-            GameManager.instance.sceneDragableFeature.DraggingCurrentSceneDragable = value;
+            GameManager.instance.sceneDragableFeature.IsDraggingCurrentSceneDragable = value;
+        }
+    }
+    public bool IsDroppingSceneDragable
+    {
+        get
+        {
+            return OnCardDrop != null;
         }
     }
 
     public CardAsset card;
+
+    public delegate void CardMoved(Transform cardTransform);
+    public static event CardMoved OnCardDrop;
 
     private void OnMouseDown()
     {
@@ -55,6 +65,8 @@ public class CardController : MonoBehaviour, ISceneDragable
     private void OnMouseUp()
     {
         IsDraggingSceneDragable = false;
+        OnDragableActions.Invoke(this);
+        OnCardDrop?.Invoke(transform);
         OnDragableActions?.Invoke(this);
     }
 }
