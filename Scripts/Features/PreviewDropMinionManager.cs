@@ -16,7 +16,7 @@ public class PreviewDropMinionManager : MonoBehaviour
             OnMPIsOn += MPIsOn;
             BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
             BattleDropeablePlace.OnMinionPicked += MinionPreviewReady;
-            SceneDragableFeature.OnSceneDragableDragEnd += EndMinionPreview;
+            SceneDragableFeature.OnSceneDragableStopDrag += EndMinionPreview;
             return minionPreviewImage;
         }
     }
@@ -59,6 +59,6 @@ public class PreviewDropMinionManager : MonoBehaviour
         OnMPIsOn -= MPIsOn;
         minionPreviewImage.sprite = null;
         BattleDropeablePlace.OnMinionPicked -= MinionPreviewReady;
-        SceneDragableFeature.OnSceneDragableDragEnd -= EndMinionPreview;
+        SceneDragableFeature.OnSceneDragableStopDrag -= EndMinionPreview;
     }
 }

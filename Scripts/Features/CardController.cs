@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CardController : MonoBehaviour, ISceneDragable
 {
+    #region DRAGABLE_VARIABLES
     public MeshCollider SceneDragableMesh
     {
         get
@@ -37,18 +38,9 @@ public class CardController : MonoBehaviour, ISceneDragable
             GameManager.instance.sceneDragableFeature.IsDraggingCurrentSceneDragable = value;
         }
     }
-    //public bool IsDroppingSceneDragable
-    //{
-    //    get
-    //    {
-    //        return OnCardDrop != null;
-    //    }
-    //}
+    #endregion
 
     public CardAsset card;
-
-    //public delegate void CardMoved(Transform cardTransform);
-    //public static event CardMoved OnCardDrop;
 
     private void OnMouseDown()
     {
@@ -66,7 +58,5 @@ public class CardController : MonoBehaviour, ISceneDragable
     {
         IsDraggingSceneDragable = false;
         OnDragableActions.Invoke(this);
-        //OnCardDrop?.Invoke(transform);
-        //OnDragableActions?.Invoke(this);
     }
 }

@@ -12,11 +12,6 @@ public class BattleDropeablePlace : MonoBehaviour
     public delegate void IsCardPicked(bool isPicked);
     public static event IsCardPicked OnMinionPicked;
 
-    //public delegate void CardIsPicked(Image previewImage);
-    //public static event CardIsPicked OnMinionPicked;
-
-    //public delegate IEnumerator DropeableMovement(Transform cardTransform, Vector3 dropPosition);
-    //public static event DropeableMovement OnDropMove;
     int PositionInLine
     {
         get
@@ -52,14 +47,6 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(0);
         }
     }
-    //PreviewDropMinionManager PreviewBF //TODO: cambiar el index cuando pongamos el nuevo remoteplayer lines
-    //{
-    //    get
-    //    {
-    //        return BattleField.GetChild(1).GetComponent<PreviewDropMinionManager>();
-    //    }
-    //}
-
     Vector3 DropPosition
     {
         get
@@ -71,17 +58,10 @@ public class BattleDropeablePlace : MonoBehaviour
     private void OnMouseEnter()
     {
         OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
-        //OnMinionPicked?.Invoke(PreviewBF.MinionPreviewImage);
-        //if (OnActiveMinionPreview == null) return;
-        //CanDrop = OnActiveMinionPreview.Invoke(DropPosition);
-        //CardController.OnCardDrop += DropToBattlefield;
     }
 
     private void OnMouseExit()
     {
         OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
-        //if (OnActiveMinionPreview == null) return;
-        //CanDrop = OnActiveMinionPreview.Invoke(DropPosition);
-        //CardController.OnCardDrop -= DropToBattlefield;
     }
 }
