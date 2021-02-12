@@ -43,7 +43,7 @@ public class SceneDragableFeature : MonoBehaviour
             {
                 OnSceneDragableActions -= OnSceneDragableMouseDrag;
                 OnSceneDragableActions += OnSceneDragableMouseUp;
-                OnSceneDragableDragEnd?.Invoke();
+                OnSceneDragableStopDrag?.Invoke();
                 //OnSceneDragableActions += OnSceneDragableDrop;
             }
         }

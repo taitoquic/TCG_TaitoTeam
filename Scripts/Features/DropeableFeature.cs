@@ -9,7 +9,7 @@ public class DropeableFeature : MonoBehaviour
 
     public delegate void DropMinionAction();
     public DropMinionAction OnMinionCanDrop;
-    public static event DropMinionAction OnDropMinionEnd;
+    //public static event DropMinionAction OnDropMinionEnd;
 
     PreviewDropMinionManager DropMinionImage
     {
@@ -29,29 +29,56 @@ public class DropeableFeature : MonoBehaviour
     {
         set
         {
-            OnMinionCanDrop += PrepareSceneDragableToDrop; //evento queda abierto
+            OnMinionCanDrop += DropMinionActivated; 
+            SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
             SetDropMinionPreview(value);
         }
     }
+
     public bool MinionCanDrop
     {
         set
         {
+            OnMinionCanDrop?.Invoke();
             if (value)
             {
-                OnMinionCanDrop?.Invoke();
-                OnMinionCanDrop -= PrepareSceneDragableToDrop;
+                SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionDropped;
+                SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
             }
-            else OnMinionCanDrop += PrepareSceneDragableToDrop;//evento queda abierto
+            else
+            {
+                SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
+                SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
+            }
         }
     }
+
     void SetDropMinionPreview(IDropeable currentDropeable)
     {
         DropMinionImage.MinionPreviewImage.sprite = currentDropeable.DropeablePreviewSprite;
     }
-    void PrepareSceneDragableToDrop()
+
+    void DropMinionActivated()
     {
         SceneDragableFeature.OnDrop += DropSceneDragableToDropPosition;
+        OnMinionCanDrop += DropMinionDesActivated;
+        OnMinionCanDrop -= DropMinionActivated;
+    }
+    void DropMinionDesActivated()
+    {
+        SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
+        OnMinionCanDrop += DropMinionActivated;
+        OnMinionCanDrop -= DropMinionDesActivated;
+    }
+    void EndActionsWhenMinionDropped()
+    {
+        OnMinionCanDrop -= DropMinionDesActivated;
+        SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
+    }
+    void EndActionsWhenMinionIsNotDropped()
+    {
+        OnMinionCanDrop -= DropMinionActivated;
+        SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
     }
 
     void DropSceneDragableToDropPosition(ISceneDragable currentSceneDragable)
@@ -68,8 +95,5 @@ public class DropeableFeature : MonoBehaviour
             yield return null;
         }
         cardTransform.position = DropPosition;
-        //BattleDropeablePlace.OnDropMove -= MoveDropeable;
-        //SceneDragableFeature.OnSceneDragableDragEnd -= NullPreviewSprite;
     }
-    
 }

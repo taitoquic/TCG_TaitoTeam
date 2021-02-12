@@ -9,6 +9,9 @@ public class BattleDropeablePlace : MonoBehaviour
     public delegate bool ActiveMinionPreview(Vector3 dropPosition);
     public static event ActiveMinionPreview OnActiveMinionPreview;
 
+    public delegate void IsCardPicked(bool isPicked);
+    public static event IsCardPicked OnMinionPicked;
+
     //public delegate void CardIsPicked(Image previewImage);
     //public static event CardIsPicked OnMinionPicked;
 
@@ -56,13 +59,7 @@ public class BattleDropeablePlace : MonoBehaviour
     //        return BattleField.GetChild(1).GetComponent<PreviewDropMinionManager>();
     //    }
     //}
-    bool CanDrop
-    {
-        set
-        {
-            GameManager.instance.dropeableFeature.MinionCanDrop = value;
-        }
-    }
+
     Vector3 DropPosition
     {
         get
@@ -73,16 +70,18 @@ public class BattleDropeablePlace : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
         //OnMinionPicked?.Invoke(PreviewBF.MinionPreviewImage);
-        if (OnActiveMinionPreview == null) return;
-        CanDrop = OnActiveMinionPreview.Invoke(DropPosition);
+        //if (OnActiveMinionPreview == null) return;
+        //CanDrop = OnActiveMinionPreview.Invoke(DropPosition);
         //CardController.OnCardDrop += DropToBattlefield;
     }
 
     private void OnMouseExit()
     {
-        if (OnActiveMinionPreview == null) return;
-        CanDrop = OnActiveMinionPreview.Invoke(DropPosition);
+        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
+        //if (OnActiveMinionPreview == null) return;
+        //CanDrop = OnActiveMinionPreview.Invoke(DropPosition);
         //CardController.OnCardDrop -= DropToBattlefield;
     }
 }
