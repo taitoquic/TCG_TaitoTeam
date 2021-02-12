@@ -9,5 +9,5 @@ public interface ISceneDragable
     public Transform SceneDragableTransform { get; }
     public DragableActions OnDragableActions { get; set; }
     public bool IsDraggingSceneDragable { set; }
-    public bool IsDroppingSceneDragable { get; }
+    //public bool IsDroppingSceneDragable { get; }
 }

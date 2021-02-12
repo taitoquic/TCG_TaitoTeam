@@ -6,40 +6,52 @@ using UnityEngine.UI;
 public class PreviewDropMinionManager : MonoBehaviour
 {
     public Image minionPreviewImage;
+    delegate bool MinionPreviewImageAppear();
+    MinionPreviewImageAppear OnMPIsOn;
 
-    private void Start()
-    {
-        BattleDropeablePlace.filledPositions = new List<int[]>(2);
-    }
     public Image MinionPreviewImage
     {
         get
         {
+            OnMPIsOn += MPIsOn;
             BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
             SceneDragableFeature.OnSceneDragableDragEnd += EndMinionPreview;
             return minionPreviewImage;
         }
     }
-
-    public void ActiveMinionPreview(Vector3 dropPosition)
+    bool ActiveMinionPreview(Vector3 dropPosition)
     {
-        gameObject.SetActive(true);
         minionPreviewImage.transform.position = dropPosition;
-        BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
-        BattleDropeablePlace.OnActiveMinionPreview += DesactiveMinionPreview;
+        return OnMPIsOn.Invoke();
+    }
+    bool DesactiveMinionPreview(Vector3 dropPosition)
+    {
+        return OnMPIsOn.Invoke();
     }
 
-    public void DesactiveMinionPreview(Vector3 dropPosition)
+    bool MPIsOn()
+    {
+        gameObject.SetActive(true);
+        BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
+        BattleDropeablePlace.OnActiveMinionPreview += DesactiveMinionPreview;
+        OnMPIsOn += MPIsOff;
+        OnMPIsOn -= MPIsOn;
+        return true;
+    }
+    bool MPIsOff()
     {
         gameObject.SetActive(false);
         BattleDropeablePlace.OnActiveMinionPreview -= DesactiveMinionPreview;
         BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
+        OnMPIsOn += MPIsOn;
+        OnMPIsOn -= MPIsOff;
+        return false;
     }
-
     void EndMinionPreview()
     {
-        if (gameObject.activeInHierarchy) DesactiveMinionPreview(Vector3.zero);
+        if (gameObject.activeInHierarchy) OnMPIsOn.Invoke();
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
+        OnMPIsOn -= MPIsOn;
         minionPreviewImage.sprite = null;
         SceneDragableFeature.OnSceneDragableDragEnd -= EndMinionPreview;
     }

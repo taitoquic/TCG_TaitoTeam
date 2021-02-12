@@ -10,12 +10,13 @@ public class SceneDragableFeature : MonoBehaviour
     Vector3 initialPosition;
 
     public DragableActions OnSceneDragableActions;
-    //public static event DragableActions OnDrop;
+    public static event DragableActions OnDrop;
 
     //public delegate void sceneDragableMove(ISceneDragable currentSceneDragable);
 
     public delegate void SceneDragabledActions();
     public static event SceneDragabledActions OnSceneDragableDragEnd;
+    public static event SceneDragabledActions OnSceneDragableStopDrag;
 
     //public static DragableActions IsSceneDragableDropped
     //{
@@ -41,7 +42,9 @@ public class SceneDragableFeature : MonoBehaviour
             else
             {
                 OnSceneDragableActions -= OnSceneDragableMouseDrag;
-                OnSceneDragableActions += OnSceneDragableDrop;
+                OnSceneDragableActions += OnSceneDragableMouseUp;
+                OnSceneDragableDragEnd?.Invoke();
+                //OnSceneDragableActions += OnSceneDragableDrop;
             }
         }
     }
@@ -71,18 +74,18 @@ public class SceneDragableFeature : MonoBehaviour
         currentSceneDragable.SceneDragableTransform.position = ray.GetPoint(distance);
     }
 
-    public void OnSceneDragableDrop(ISceneDragable currentSceneDragable)
-    {
-        if (!currentSceneDragable.IsDroppingSceneDragable) OnSceneDragableActions += SceneDragableResetPosition;
-        OnSceneDragableActions += OnSceneDragableMouseUp;
-        OnSceneDragableActions -= OnSceneDragableDrop;
-    }
+    //public void OnSceneDragableDrop(ISceneDragable currentSceneDragable)
+    //{
+    //    if (!currentSceneDragable.IsDroppingSceneDragable) OnSceneDragableActions += SceneDragableResetPosition;
+    //    OnSceneDragableActions += OnSceneDragableMouseUp;
+    //    OnSceneDragableActions -= OnSceneDragableDrop;
+    //}
     
     void OnSceneDragableMouseUp(ISceneDragable currentSceneDragable)
     {
         currentSceneDragable.SceneDragableMesh.enabled = true;
         //if (OnDrop == null) OnDrop += CardResetPosition;
-        //OnDrop?.Invoke(currentSceneDragable);
+        OnDrop?.Invoke(currentSceneDragable);
         OnSceneDragableDragEnd?.Invoke();
         OnSceneDragableActions -= OnSceneDragableMouseUp;
     }
