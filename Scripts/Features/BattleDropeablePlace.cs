@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class BattleDropeablePlace : MonoBehaviour
 {
-    //public static List<int[]> filledPositions;
+    public BoxCollider dropeableZone;
+
+    static List<BoxCollider> occupiedPositions;
 
     public delegate bool ActiveMinionPreview(Vector3 dropPosition);
     public static event ActiveMinionPreview OnActiveMinionPreview;
@@ -24,13 +26,6 @@ public class BattleDropeablePlace : MonoBehaviour
         get
         {
             return transform.parent.GetSiblingIndex();
-        }
-    }
-    int[] ListIdentificator
-    {
-        get
-        {
-            return new int[2] { IndexLine, PositionInLine };
         }
     }
     Transform BattleField
@@ -63,5 +58,9 @@ public class BattleDropeablePlace : MonoBehaviour
     private void OnMouseExit()
     {
         OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
+    }
+    public void AddOccupiedPosition()
+    {
+        occupiedPositions.Add(dropeableZone);
     }
 }

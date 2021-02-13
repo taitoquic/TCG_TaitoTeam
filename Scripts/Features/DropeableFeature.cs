@@ -9,10 +9,10 @@ public class DropeableFeature : MonoBehaviour
 
     public delegate void DropMinionAction();
     public DropMinionAction OnMinionCanDrop;
+    public static event DropMinionAction OnMinionDrop;
 
     public delegate void DropeablePlaceInBoardAction(Transform dropeablePlaceTransform);
     public static event DropeablePlaceInBoardAction OnDropeablePlace;
-    //public static event DropMinionAction OnDropMinionEnd;
 
     PreviewDropMinionManager DropMinionImage
     {
@@ -28,14 +28,6 @@ public class DropeableFeature : MonoBehaviour
             return DropMinionImage.minionPreviewImage.transform.position;
         }
     }
-    //public bool ActivateCollidersToDropBF
-    //{
-    //    set
-    //    {
-    //        CollidersForDropToBF.gameObject.SetActive(value);
-    //        SceneDragableFeature.OnSceneDragableDragEnd += DesActivateCollidersToDropBF;
-    //    }
-    //}
     public IDropeable CurrentDraggedDropeable 
     {
         set
@@ -97,6 +89,7 @@ public class DropeableFeature : MonoBehaviour
 
     void DropSceneDragableToDropPosition(ISceneDragable currentSceneDragable)
     {
+        OnMinionDrop?.Invoke();
         StartCoroutine(MoveDropeable(currentSceneDragable.SceneDragableTransform));
         SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
     }
@@ -111,9 +104,4 @@ public class DropeableFeature : MonoBehaviour
         cardTransform.position = DropPosition;
     }
 
-    //void DesActivateCollidersToDropBF()
-    //{
-    //    ActivateCollidersToDropBF = false;
-    //    SceneDragableFeature.OnSceneDragableDragEnd -= DesActivateCollidersToDropBF;
-    //}
 }
