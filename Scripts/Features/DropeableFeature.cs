@@ -6,6 +6,7 @@ public class DropeableFeature : MonoBehaviour
 {
     public Transform CollidersForDropToBF;
     public Transform dropMinionTransform;
+    public List<BoxCollider> occupiedPositions = new List<BoxCollider>();
 
     public delegate void DropMinionAction();
     public DropMinionAction OnMinionCanDrop;
@@ -90,6 +91,7 @@ public class DropeableFeature : MonoBehaviour
     void DropSceneDragableToDropPosition(ISceneDragable currentSceneDragable)
     {
         OnMinionDrop?.Invoke();
+        Debug.Log(OnMinionDrop);
         StartCoroutine(MoveDropeable(currentSceneDragable.SceneDragableTransform));
         SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
     }

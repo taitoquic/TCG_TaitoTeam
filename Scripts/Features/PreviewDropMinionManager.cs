@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class PreviewDropMinionManager : MonoBehaviour
 {
     public Image minionPreviewImage;
+
     delegate bool MinionPreviewImageAppear();
     MinionPreviewImageAppear OnMPIsOn;
 
@@ -20,13 +21,17 @@ public class PreviewDropMinionManager : MonoBehaviour
             return minionPreviewImage;
         }
     }
-    bool ActiveMinionPreview(Vector3 dropPosition)
+    bool ActiveMinionPreview(BattleDropeablePlace currentBattleDropeablePlace)
     {
-        minionPreviewImage.transform.position = dropPosition;
+        minionPreviewImage.transform.position = currentBattleDropeablePlace.DropPosition;
+        DropeableFeature.OnMinionDrop += currentBattleDropeablePlace.AddOccupiedPosition;
+        Debug.Log("AddOccupiedPosition added to Event");
         return OnMPIsOn.Invoke();
     }
-    bool DesactiveMinionPreview(Vector3 dropPosition)
+    bool DesactiveMinionPreview(BattleDropeablePlace currentBattleDropeablePlace)
     {
+        DropeableFeature.OnMinionDrop -= currentBattleDropeablePlace.AddOccupiedPosition;
+        Debug.Log("AddOccupiedPosition remove to Event");
         return OnMPIsOn.Invoke();
     }
 
@@ -52,6 +57,7 @@ public class PreviewDropMinionManager : MonoBehaviour
     {
         GameManager.instance.dropeableFeature.MinionCanDrop = isMinionPreviewReady;
     }
+
     void EndMinionPreview()
     {
         if (gameObject.activeInHierarchy) OnMPIsOn.Invoke();

@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class BattleDropeablePlace : MonoBehaviour
 {
-    public BoxCollider dropeableZone;
+    public BoxCollider collidersToBF;
 
-    static List<BoxCollider> occupiedPositions;
-
-    public delegate bool ActiveMinionPreview(Vector3 dropPosition);
+    public delegate bool ActiveMinionPreview(BattleDropeablePlace currentBattleDropeablePlace);
     public static event ActiveMinionPreview OnActiveMinionPreview;
 
     public delegate void IsCardPicked(bool isPicked);
@@ -42,25 +40,33 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(0);
         }
     }
-    Vector3 DropPosition
+    public Vector3 DropPosition
     {
         get
         {
             return LocalPlayerLines.GetChild(IndexLine).GetChild(PositionInLine).position;
         }
     }
-
+    List<BoxCollider> OccupiedPositions
+    {
+        get
+        {
+            return GameManager.instance.dropeableFeature.occupiedPositions;
+        }
+    }
     private void OnMouseEnter()
     {
-        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
+        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(this));
     }
 
     private void OnMouseExit()
     {
-        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
+        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(this));
     }
     public void AddOccupiedPosition()
     {
-        occupiedPositions.Add(dropeableZone);
+        OccupiedPositions.Add(collidersToBF);
+        Debug.Log("Event fired and dictionary has " + OccupiedPositions.Count + "entries");
+        DropeableFeature.OnMinionDrop -= AddOccupiedPosition;
     }
 }
