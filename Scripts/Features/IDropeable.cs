@@ -6,4 +6,6 @@ public interface IDropeable
 {
     void PlayDropeable();
     Sprite DropeablePreviewSprite { get; }
+    void ActivateDropeablePlaceInBoard(Transform dropeablePlaceInBoard);
+    void DesActivateDropeablePlaceInBoard(Transform dropeablePlaceInBoard);
 }

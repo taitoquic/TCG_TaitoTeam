@@ -9,6 +9,9 @@ public class DropeableFeature : MonoBehaviour
 
     public delegate void DropMinionAction();
     public DropMinionAction OnMinionCanDrop;
+
+    public delegate void DropeablePlaceInBoardAction(Transform dropeablePlaceTransform);
+    public static event DropeablePlaceInBoardAction OnDropeablePlace;
     //public static event DropMinionAction OnDropMinionEnd;
 
     PreviewDropMinionManager DropMinionImage
@@ -25,10 +28,19 @@ public class DropeableFeature : MonoBehaviour
             return DropMinionImage.minionPreviewImage.transform.position;
         }
     }
+    //public bool ActivateCollidersToDropBF
+    //{
+    //    set
+    //    {
+    //        CollidersForDropToBF.gameObject.SetActive(value);
+    //        SceneDragableFeature.OnSceneDragableDragEnd += DesActivateCollidersToDropBF;
+    //    }
+    //}
     public IDropeable CurrentDraggedDropeable 
     {
         set
         {
+            OnDropeablePlace?.Invoke(CollidersForDropToBF);
             OnMinionCanDrop += DropMinionActivated; 
             SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
             SetDropMinionPreview(value);
@@ -73,11 +85,13 @@ public class DropeableFeature : MonoBehaviour
     void EndActionsWhenMinionDropped()
     {
         OnMinionCanDrop -= DropMinionDesActivated;
+        OnDropeablePlace?.Invoke(CollidersForDropToBF);
         SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
     }
     void EndActionsWhenMinionIsNotDropped()
     {
         OnMinionCanDrop -= DropMinionActivated;
+        OnDropeablePlace?.Invoke(CollidersForDropToBF);
         SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
     }
 
@@ -96,4 +110,10 @@ public class DropeableFeature : MonoBehaviour
         }
         cardTransform.position = DropPosition;
     }
+
+    //void DesActivateCollidersToDropBF()
+    //{
+    //    ActivateCollidersToDropBF = false;
+    //    SceneDragableFeature.OnSceneDragableDragEnd -= DesActivateCollidersToDropBF;
+    //}
 }

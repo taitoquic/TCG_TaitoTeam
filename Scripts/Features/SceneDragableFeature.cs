@@ -42,8 +42,8 @@ public class SceneDragableFeature : MonoBehaviour
         OnSceneDragableActions -= OnSceneDragableMouseDown;
         OnSceneDragableActions += OnSceneDragableMouseDrag;
     }
-
-    public void OnSceneDragableMouseDrag(ISceneDragable currentSceneDragable)
+    
+    void OnSceneDragableMouseDrag(ISceneDragable currentSceneDragable)
     {
         ray = cam.ScreenPointToRay(Input.mousePosition);
         currentSceneDragable.SceneDragableTransform.position = ray.GetPoint(distance);
