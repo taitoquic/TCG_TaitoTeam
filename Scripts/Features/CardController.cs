@@ -19,24 +19,17 @@ public class CardController : MonoBehaviour, ISceneDragable
             return transform;
         }
     }
-    public DragableActions OnDragableActions
+    public ISceneDragable CurrentDragable
     {
-        get
-        {
-            return GameManager.instance.sceneDragableFeature.OnSceneDragableActions;
-        }
-
         set
         {
-            GameManager.instance.sceneDragableFeature.OnSceneDragableActions += value;
+            GameManager.instance.sceneDragableFeature.CurrentDragableDragged = value;
         }
     }
-    public bool IsDraggingSceneDragable
+    public void SetSceneDragableState(bool isCurrentDragableBeginDrag)
     {
-        set
-        {
-            GameManager.instance.sceneDragableFeature.IsDraggingCurrentSceneDragable = value;
-        }
+        if (isCurrentDragableBeginDrag) GameManager.instance.sceneDragableFeature.CurrentDragableBeginDragged = this;
+        else GameManager.instance.sceneDragableFeature.CurrentDragableEndDragged = this;
     }
     #endregion
 
@@ -44,19 +37,17 @@ public class CardController : MonoBehaviour, ISceneDragable
 
     private void OnMouseDown()
     {
-        IsDraggingSceneDragable = true;
         card.PlayCard();
-        OnDragableActions?.Invoke(this);
+        SetSceneDragableState(true);
     }
 
     private void OnMouseDrag()
     {
-        OnDragableActions?.Invoke(this);
+        CurrentDragable = this;
     }
 
     private void OnMouseUp()
     {
-        IsDraggingSceneDragable = false;
-        OnDragableActions.Invoke(this);
+        SetSceneDragableState(false);
     }
 }

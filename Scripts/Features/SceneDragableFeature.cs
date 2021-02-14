@@ -9,6 +9,7 @@ public class SceneDragableFeature : MonoBehaviour
     Ray ray;
     Vector3 initialPosition;
 
+    public delegate void DragableActions(ISceneDragable currentSceneDragable);
     public DragableActions OnSceneDragableActions;
     public static event DragableActions OnDrop;
 
@@ -16,21 +17,29 @@ public class SceneDragableFeature : MonoBehaviour
     public static event SceneDragabledActions OnSceneDragableStopDrag;
     public static event SceneDragabledActions OnSceneDragableDragEnd;
 
-    public bool IsDraggingCurrentSceneDragable
+    public ISceneDragable CurrentDragableDragged
     {
         set
         {
-            if (value)
-            {
-                OnSceneDragableActions += OnSceneDragableMouseDown;
-            }
-            else
-            {
-                OnSceneDragableActions -= OnSceneDragableMouseDrag;
-                if (OnDrop == null) OnSceneDragableActions += SceneDragableResetPosition;
-                OnSceneDragableActions += OnSceneDragableMouseUp;
-                OnSceneDragableStopDrag?.Invoke();
-            }
+            OnSceneDragableActions?.Invoke(value);
+        }
+    }
+    public ISceneDragable CurrentDragableBeginDragged
+    {
+        set
+        {
+            OnSceneDragableMouseDown(value);
+        }
+    }
+    public ISceneDragable CurrentDragableEndDragged
+    {
+        set
+        {
+            OnSceneDragableActions -= OnSceneDragableMouseDrag;
+            OnSceneDragableStopDrag?.Invoke();
+            if (OnDrop == null) OnSceneDragableActions += SceneDragableResetPosition;
+            OnSceneDragableActions += OnSceneDragableMouseUp;
+            OnSceneDragableActions?.Invoke(value);
         }
     }
 
@@ -39,7 +48,6 @@ public class SceneDragableFeature : MonoBehaviour
         currentSceneDragable.SceneDragableMesh.enabled = false;
         distance = Vector3.Distance(cam.transform.position, currentSceneDragable.SceneDragableTransform.position);
         initialPosition = currentSceneDragable.SceneDragableTransform.position;
-        OnSceneDragableActions -= OnSceneDragableMouseDown;
         OnSceneDragableActions += OnSceneDragableMouseDrag;
     }
     
