@@ -7,6 +7,9 @@ public class DropeableFeature : MonoBehaviour
     public Transform CollidersForDropToBF;
     public Transform dropMinionTransform;
     public List<BoxCollider> occupiedPositions = new List<BoxCollider>();
+
+    public delegate void DropeableActions(ISceneDragable currentSceneDragable);
+    public DropeableActions OnDropingActions;
     PreviewDropMinionManager DropMinionImage
     {
         get
@@ -54,20 +57,28 @@ public class DropeableFeature : MonoBehaviour
         else SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
     }
 
+    void ResetMeshColliderAtEndDrop(ISceneDragable currentSceneDragable)
+    {
+        currentSceneDragable.SceneDragableMesh.enabled = true;
+        OnDropingActions -= ResetMeshColliderAtEndDrop;
+    }
+
     void DropSceneDragableToDropPosition(ISceneDragable currentSceneDragable)
     {
-        StartCoroutine(MoveDropeable(currentSceneDragable.SceneDragableTransform));
+        OnDropingActions += ResetMeshColliderAtEndDrop;
+        StartCoroutine(MoveDropeable(currentSceneDragable));
         SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
     }
-    IEnumerator MoveDropeable(Transform cardTransform)
+    IEnumerator MoveDropeable(ISceneDragable currentSceneDragable)
     {
         float sMoothing = 10.0f;
-        while (Vector3.Distance(cardTransform.position, DropPosition) > 0.05f)
+        while (Vector3.Distance(currentSceneDragable.SceneDragableTransform.position, DropPosition) > 0.05f)
         {
-            cardTransform.position = Vector3.Lerp(cardTransform.position, DropPosition, sMoothing * Time.deltaTime);
+            currentSceneDragable.SceneDragableTransform.position = Vector3.Lerp(currentSceneDragable.SceneDragableTransform.position, DropPosition, sMoothing * Time.deltaTime);
             yield return null;
         }
-        cardTransform.position = DropPosition;
+        currentSceneDragable.SceneDragableTransform.position = DropPosition;
+        OnDropingActions?.Invoke(currentSceneDragable);
     }
 }
 //OnDropeablePlace?.Invoke(CollidersForDropToBF);

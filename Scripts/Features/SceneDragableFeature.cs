@@ -59,7 +59,6 @@ public class SceneDragableFeature : MonoBehaviour
     
     void OnSceneDragableMouseUp(ISceneDragable currentSceneDragable)
     {
-        currentSceneDragable.SceneDragableMesh.enabled = true;
         OnDrop?.Invoke(currentSceneDragable);
         OnSceneDragableDragEnd?.Invoke();
         OnSceneDragableActions -= OnSceneDragableMouseUp;
@@ -68,6 +67,7 @@ public class SceneDragableFeature : MonoBehaviour
     void SceneDragableResetPosition(ISceneDragable currentSceneDragable)
     {
         currentSceneDragable.SceneDragableTransform.position = initialPosition;
+        currentSceneDragable.SceneDragableMesh.enabled = true;
         OnSceneDragableActions -= SceneDragableResetPosition;
     }
 }
