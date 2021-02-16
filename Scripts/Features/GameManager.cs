@@ -14,5 +14,4 @@ public class GameManager : MonoBehaviour
 
     public SceneDragableFeature sceneDragableFeature;
     public DropeableFeature dropeableFeature;
-
 }

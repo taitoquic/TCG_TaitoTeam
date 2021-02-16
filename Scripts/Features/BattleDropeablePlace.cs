@@ -6,11 +6,11 @@ public class BattleDropeablePlace : MonoBehaviour
 {
     public BoxCollider collidersToBF;
 
-    public delegate bool ActiveMinionPreview(BattleDropeablePlace currentBattleDropeablePlace);
+    public delegate bool ActiveMinionPreview(Vector3 placeToMoveMP);
     public static event ActiveMinionPreview OnActiveMinionPreview;
 
-    public delegate void IsCardPicked(bool isPicked);
-    public static event IsCardPicked OnMinionPicked;
+    public delegate void MinionPreviewAction();
+    public MinionPreviewAction OnMPAction;
 
     int PositionInLine
     {
@@ -40,13 +40,6 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(0);
         }
     }
-    public Vector3 DropPosition
-    {
-        get
-        {
-            return LocalPlayerLines.GetChild(IndexLine).GetChild(PositionInLine).position;
-        }
-    }
     List<BoxCollider> OccupiedPositions
     {
         get
@@ -54,19 +47,49 @@ public class BattleDropeablePlace : MonoBehaviour
             return GameManager.instance.dropeableFeature.occupiedPositions;
         }
     }
+    Vector3 DropPosition
+    {
+        get
+        {
+            return LocalPlayerLines.GetChild(IndexLine).GetChild(PositionInLine).position;
+        }
+    }
+
+    bool CanMinionDrop
+    {
+        set
+        {
+            GameManager.instance.dropeableFeature.DropeableCanDrop = value;
+        }
+    }
+    private void OnEnable()
+    {
+        OnMPAction += SetMP;
+    }
     private void OnMouseEnter()
     {
-        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(this));
+        OnMPAction?.Invoke();
     }
 
     private void OnMouseExit()
     {
-        OnMinionPicked?.Invoke(OnActiveMinionPreview.Invoke(this));
+        OnMPAction?.Invoke();
     }
-    public void AddOccupiedPosition()
+
+    private void OnDisable()
     {
-        OccupiedPositions.Add(collidersToBF);
-        Debug.Log("Event fired and dictionary has " + OccupiedPositions.Count + "entries");
-        DropeableFeature.OnMinionDrop -= AddOccupiedPosition;
+        OnMPAction -= SetMP;
     }
+
+    void SetMP()
+    {
+        CanMinionDrop = OnActiveMinionPreview.Invoke(DropPosition);
+    }
+
+    //public void AddOccupiedPosition()
+    //{
+    //    OccupiedPositions.Add(collidersToBF);
+    //    Debug.Log("Event fired and dictionary has " + OccupiedPositions.Count + "entries");
+    //    DropeableFeature.OnMinionDrop -= AddOccupiedPosition;
+    //}
 }

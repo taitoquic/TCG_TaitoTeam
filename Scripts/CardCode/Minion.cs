@@ -19,19 +19,6 @@ public class Minion : CardAsset, IDropeable
     }
     public void PlayDropeable()
     {
-        DropeableFeature.OnDropeablePlace += ActivateDropeablePlaceInBoard;
         GameManager.instance.dropeableFeature.CurrentDraggedDropeable = this;
-    }
-    public void ActivateDropeablePlaceInBoard(Transform dropeablePlaceInBoard)
-    {
-        dropeablePlaceInBoard.gameObject.SetActive(true);
-        DropeableFeature.OnDropeablePlace += DesActivateDropeablePlaceInBoard;
-        DropeableFeature.OnDropeablePlace -= ActivateDropeablePlaceInBoard;
-        
-    }
-    public void DesActivateDropeablePlaceInBoard(Transform dropeablePlaceInBoard)
-    {
-        dropeablePlaceInBoard.gameObject.SetActive(false);
-        DropeableFeature.OnDropeablePlace -= DesActivateDropeablePlaceInBoard;
     }
 }

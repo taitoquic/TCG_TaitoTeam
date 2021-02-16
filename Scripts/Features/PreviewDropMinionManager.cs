@@ -6,65 +6,55 @@ using UnityEngine.UI;
 public class PreviewDropMinionManager : MonoBehaviour
 {
     public Image minionPreviewImage;
-
-    delegate bool MinionPreviewImageAppear();
-    MinionPreviewImageAppear OnMPIsOn;
-
     public Image MinionPreviewImage
     {
         get
         {
-            OnMPIsOn += MPIsOn;
             BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
-            BattleDropeablePlace.OnMinionPicked += MinionPreviewReady;
+            SetDropMinionSpriteInImage = true;
             SceneDragableFeature.OnSceneDragableStopDrag += EndMinionPreview;
             return minionPreviewImage;
         }
     }
-    bool ActiveMinionPreview(BattleDropeablePlace currentBattleDropeablePlace)
+
+    bool SetDropMinionSpriteInImage
     {
-        minionPreviewImage.transform.position = currentBattleDropeablePlace.DropPosition;
-        DropeableFeature.OnMinionDrop += currentBattleDropeablePlace.AddOccupiedPosition;
-        Debug.Log("AddOccupiedPosition added to Event");
-        return OnMPIsOn.Invoke();
-    }
-    bool DesactiveMinionPreview(BattleDropeablePlace currentBattleDropeablePlace)
-    {
-        DropeableFeature.OnMinionDrop -= currentBattleDropeablePlace.AddOccupiedPosition;
-        Debug.Log("AddOccupiedPosition remove to Event");
-        return OnMPIsOn.Invoke();
+        set
+        {
+            GameManager.instance.dropeableFeature.IsDropMinionSpriteInImage = value;
+        }
     }
 
-    bool MPIsOn()
+    private void OnEnable()
     {
-        gameObject.SetActive(true);
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
         BattleDropeablePlace.OnActiveMinionPreview += DesactiveMinionPreview;
-        OnMPIsOn += MPIsOff;
-        OnMPIsOn -= MPIsOn;
-        return true;
     }
-    bool MPIsOff()
+    private void OnDisable()
     {
-        gameObject.SetActive(false);
         BattleDropeablePlace.OnActiveMinionPreview -= DesactiveMinionPreview;
         BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
-        OnMPIsOn += MPIsOn;
-        OnMPIsOn -= MPIsOff;
-        return false;
     }
-    void MinionPreviewReady(bool isMinionPreviewReady)
+
+    bool ActiveMinionPreview(Vector3 placeToMoveMP)
     {
-        GameManager.instance.dropeableFeature.MinionCanDrop = isMinionPreviewReady;
+        minionPreviewImage.transform.position = placeToMoveMP;
+        gameObject.SetActive(true);
+        return true;
+    }
+
+    bool DesactiveMinionPreview(Vector3 placeToMoveMP)
+    {
+        gameObject.SetActive(false);
+        return false;
     }
 
     void EndMinionPreview()
     {
-        if (gameObject.activeInHierarchy) OnMPIsOn.Invoke();
+        if (gameObject.activeInHierarchy) gameObject.SetActive(false);
+        SetDropMinionSpriteInImage = false;
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
-        OnMPIsOn -= MPIsOn;
         minionPreviewImage.sprite = null;
-        BattleDropeablePlace.OnMinionPicked -= MinionPreviewReady;
         SceneDragableFeature.OnSceneDragableStopDrag -= EndMinionPreview;
     }
 }

@@ -7,14 +7,6 @@ public class DropeableFeature : MonoBehaviour
     public Transform CollidersForDropToBF;
     public Transform dropMinionTransform;
     public List<BoxCollider> occupiedPositions = new List<BoxCollider>();
-
-    public delegate void DropMinionAction();
-    public DropMinionAction OnMinionCanDrop;
-    public static event DropMinionAction OnMinionDrop;
-
-    public delegate void DropeablePlaceInBoardAction(Transform dropeablePlaceTransform);
-    public static event DropeablePlaceInBoardAction OnDropeablePlace;
-
     PreviewDropMinionManager DropMinionImage
     {
         get
@@ -26,72 +18,47 @@ public class DropeableFeature : MonoBehaviour
     {
         get
         {
-            return DropMinionImage.minionPreviewImage.transform.position;
+            return dropMinionTransform.position;
         }
     }
     public IDropeable CurrentDraggedDropeable 
     {
         set
         {
-            OnDropeablePlace?.Invoke(CollidersForDropToBF);
-            OnMinionCanDrop += DropMinionActivated; 
-            SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
+
             SetDropMinionPreview(value);
         }
     }
 
-    public bool MinionCanDrop
+    public bool IsDropMinionSpriteInImage
     {
         set
         {
-            OnMinionCanDrop?.Invoke();
-            if (value)
-            {
-                SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionDropped;
-                SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
-            }
-            else
-            {
-                SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
-                SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
-            }
+            CollidersForDropToBF.gameObject.SetActive(value);
         }
     }
 
+    public bool DropeableCanDrop
+    {
+        set
+        {
+            if (value)
+            {
+                SceneDragableFeature.OnDrop += DropSceneDragableToDropPosition;
+            }
+            else
+            {
+                SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
+            }
+        }
+    }
     void SetDropMinionPreview(IDropeable currentDropeable)
     {
         DropMinionImage.MinionPreviewImage.sprite = currentDropeable.DropeablePreviewSprite;
     }
 
-    void DropMinionActivated()
-    {
-        SceneDragableFeature.OnDrop += DropSceneDragableToDropPosition;
-        OnMinionCanDrop += DropMinionDesActivated;
-        OnMinionCanDrop -= DropMinionActivated;
-    }
-    void DropMinionDesActivated()
-    {
-        SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
-        OnMinionCanDrop += DropMinionActivated;
-        OnMinionCanDrop -= DropMinionDesActivated;
-    }
-    void EndActionsWhenMinionDropped()
-    {
-        OnMinionCanDrop -= DropMinionDesActivated;
-        OnDropeablePlace?.Invoke(CollidersForDropToBF);
-        SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
-    }
-    void EndActionsWhenMinionIsNotDropped()
-    {
-        OnMinionCanDrop -= DropMinionActivated;
-        OnDropeablePlace?.Invoke(CollidersForDropToBF);
-        SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
-    }
-
     void DropSceneDragableToDropPosition(ISceneDragable currentSceneDragable)
     {
-        OnMinionDrop?.Invoke();
-        Debug.Log(OnMinionDrop);
         StartCoroutine(MoveDropeable(currentSceneDragable.SceneDragableTransform));
         SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
     }
@@ -105,5 +72,50 @@ public class DropeableFeature : MonoBehaviour
         }
         cardTransform.position = DropPosition;
     }
-
 }
+//OnDropeablePlace?.Invoke(CollidersForDropToBF);
+//OnMinionCanDrop += DropMinionActivated; 
+//SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
+
+//public bool MinionCanDrop
+//{
+//    set
+//    {
+//        OnMinionCanDrop?.Invoke();
+//        if (value)
+//        {
+//            SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionDropped;
+//            SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
+//        }
+//        else
+//        {
+//            SceneDragableFeature.OnSceneDragableDragEnd += EndActionsWhenMinionIsNotDropped;
+//            SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
+//        }
+//    }
+//}
+
+//void DropMinionActivated()
+//{
+//    //SceneDragableFeature.OnDrop += DropSceneDragableToDropPosition;
+//    OnMinionCanDrop += DropMinionDesActivated;
+//    OnMinionCanDrop -= DropMinionActivated;
+//}
+//void DropMinionDesActivated()
+//{
+//    //SceneDragableFeature.OnDrop -= DropSceneDragableToDropPosition;
+//    OnMinionCanDrop += DropMinionActivated;
+//    OnMinionCanDrop -= DropMinionDesActivated;
+//}
+//void EndActionsWhenMinionDropped()
+//{
+//    OnMinionCanDrop -= DropMinionDesActivated;
+//    OnDropeablePlace?.Invoke(CollidersForDropToBF);
+//    SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionDropped;
+//}
+//void EndActionsWhenMinionIsNotDropped()
+//{
+//    OnMinionCanDrop -= DropMinionActivated;
+//    OnDropeablePlace?.Invoke(CollidersForDropToBF);
+//    SceneDragableFeature.OnSceneDragableDragEnd -= EndActionsWhenMinionIsNotDropped;
+//}
