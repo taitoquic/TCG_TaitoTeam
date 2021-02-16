@@ -9,6 +9,9 @@ public class BattleDropeablePlace : MonoBehaviour
     public delegate bool ActiveMinionPreview(Vector3 placeToMoveMP);
     public static event ActiveMinionPreview OnActiveMinionPreview;
 
+    public delegate void CanDropeableDropInPlace(bool mpIsActive);
+    public static event CanDropeableDropInPlace OnMPIsActive;
+
     public delegate void MinionPreviewAction();
     public MinionPreviewAction OnMPAction;
 
@@ -55,13 +58,6 @@ public class BattleDropeablePlace : MonoBehaviour
         }
     }
 
-    bool CanMinionDrop
-    {
-        set
-        {
-            GameManager.instance.dropeableFeature.DropeableCanDrop = value;
-        }
-    }
     private void OnEnable()
     {
         OnMPAction += SetMP;
@@ -83,7 +79,7 @@ public class BattleDropeablePlace : MonoBehaviour
 
     void SetMP()
     {
-        CanMinionDrop = OnActiveMinionPreview.Invoke(DropPosition);
+        OnMPIsActive?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
     }
 
     //public void AddOccupiedPosition()
