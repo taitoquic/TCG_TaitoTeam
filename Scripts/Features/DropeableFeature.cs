@@ -25,16 +25,7 @@ public class DropeableFeature : MonoBehaviour
     {
         set
         {
-
             SetDropMinionPreview(value);
-        }
-    }
-
-    public bool IsDropMinionSpriteInImage
-    {
-        set
-        {
-            CollidersForDropToBF.gameObject.SetActive(value);
         }
     }
 
@@ -54,7 +45,20 @@ public class DropeableFeature : MonoBehaviour
     }
     void SetDropMinionPreview(IDropeable currentDropeable)
     {
+        PreviewDropMinionManager.OnSpriteInImageAction += ActiveDropeableBoardPlace;
         DropMinionImage.MinionPreviewImage.sprite = currentDropeable.DropeablePreviewSprite;
+    }
+
+    void ActiveDropeableBoardPlace()
+    {
+        CollidersForDropToBF.gameObject.SetActive(true);
+        PreviewDropMinionManager.OnSpriteInImageAction += DesActiveDropeableBoardPlace;
+        PreviewDropMinionManager.OnSpriteInImageAction -= ActiveDropeableBoardPlace;
+    }
+    void DesActiveDropeableBoardPlace()
+    {
+        CollidersForDropToBF.gameObject.SetActive(false);
+        PreviewDropMinionManager.OnSpriteInImageAction -= DesActiveDropeableBoardPlace;
     }
 
     void DropSceneDragableToDropPosition(ISceneDragable currentSceneDragable)

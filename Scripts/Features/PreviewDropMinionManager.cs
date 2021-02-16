@@ -6,22 +6,17 @@ using UnityEngine.UI;
 public class PreviewDropMinionManager : MonoBehaviour
 {
     public Image minionPreviewImage;
+
+    public delegate void OnImageValid();
+    public static event OnImageValid OnSpriteInImageAction;
     public Image MinionPreviewImage
     {
         get
         {
             BattleDropeablePlace.OnActiveMinionPreview += ActiveMinionPreview;
-            SetDropMinionSpriteInImage = true;
+            OnSpriteInImageAction?.Invoke();
             SceneDragableFeature.OnSceneDragableStopDrag += EndMinionPreview;
             return minionPreviewImage;
-        }
-    }
-
-    bool SetDropMinionSpriteInImage
-    {
-        set
-        {
-            GameManager.instance.dropeableFeature.IsDropMinionSpriteInImage = value;
         }
     }
 
@@ -52,7 +47,7 @@ public class PreviewDropMinionManager : MonoBehaviour
     void EndMinionPreview()
     {
         if (gameObject.activeInHierarchy) gameObject.SetActive(false);
-        SetDropMinionSpriteInImage = false;
+        OnSpriteInImageAction?.Invoke();
         BattleDropeablePlace.OnActiveMinionPreview -= ActiveMinionPreview;
         minionPreviewImage.sprite = null;
         SceneDragableFeature.OnSceneDragableStopDrag -= EndMinionPreview;
