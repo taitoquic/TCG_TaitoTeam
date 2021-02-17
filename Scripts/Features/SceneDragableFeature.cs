@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SceneDragableFeature : MonoBehaviour
 {
+    float xOffset = 45;
+    float yOffset = 60;
     public Camera cam;
     float distance;
     Ray ray;
@@ -17,6 +19,15 @@ public class SceneDragableFeature : MonoBehaviour
     public static event SceneDragabledActions OnSceneDragableStopDrag;
     public static event SceneDragabledActions OnSceneDragableDragEnd;
 
+    Vector2 ValidMousePosition
+    {
+        get
+        {
+            float validXPosition = Mathf.Clamp(Input.mousePosition.x, xOffset, Screen.width - xOffset);
+            float validYPosition = Mathf.Clamp(Input.mousePosition.y, yOffset, Screen.height - yOffset);
+            return new Vector2(validXPosition, validYPosition);
+        }
+    }
     public ISceneDragable CurrentDragableDragged
     {
         set
@@ -53,7 +64,7 @@ public class SceneDragableFeature : MonoBehaviour
     
     void OnSceneDragableMouseDrag(ISceneDragable currentSceneDragable)
     {
-        ray = cam.ScreenPointToRay(Input.mousePosition);
+        ray = cam.ScreenPointToRay(ValidMousePosition);
         currentSceneDragable.SceneDragableTransform.position = ray.GetPoint(distance);
     }
     
