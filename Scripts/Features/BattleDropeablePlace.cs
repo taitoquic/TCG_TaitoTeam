@@ -12,8 +12,8 @@ public class BattleDropeablePlace : MonoBehaviour
     public delegate void CanDropeableDropInPlace(bool mpIsActive);
     public static event CanDropeableDropInPlace OnMPIsActive;
 
-    public delegate void MinionPreviewAction();
-    public MinionPreviewAction OnMPAction;
+    delegate void DropeablePlaceAction();
+    DropeablePlaceAction OnDropeablePlaceAction;
 
     int PositionInLine
     {
@@ -43,13 +43,6 @@ public class BattleDropeablePlace : MonoBehaviour
             return BattleField.GetChild(0);
         }
     }
-    List<BoxCollider> OccupiedPositions
-    {
-        get
-        {
-            return GameManager.instance.dropeableFeature.occupiedPositions;
-        }
-    }
     Vector3 DropPosition
     {
         get
@@ -57,35 +50,42 @@ public class BattleDropeablePlace : MonoBehaviour
             return LocalPlayerLines.GetChild(IndexLine).GetChild(PositionInLine).position;
         }
     }
+    bool IsMinionPreviewActive
+    {
+        set
+        {
+            OnMPIsActive?.Invoke(value);
+            if (value) DropeableFeature.OnDropActions += DesactivateDropPosition;
+            else DropeableFeature.OnDropActions -= DesactivateDropPosition;
+        }
+    }
 
     private void OnEnable()
     {
-        OnMPAction += SetMP;
+        OnDropeablePlaceAction += SetMP;
     }
     private void OnMouseEnter()
     {
-        OnMPAction?.Invoke();
+        OnDropeablePlaceAction?.Invoke();
     }
 
     private void OnMouseExit()
     {
-        OnMPAction?.Invoke();
+        OnDropeablePlaceAction?.Invoke();
     }
 
     private void OnDisable()
     {
-        OnMPAction -= SetMP;
+        OnDropeablePlaceAction -= SetMP;
     }
 
     void SetMP()
     {
-        OnMPIsActive?.Invoke(OnActiveMinionPreview.Invoke(DropPosition));
+        IsMinionPreviewActive = OnActiveMinionPreview.Invoke(DropPosition);
     }
-
-    //public void AddOccupiedPosition()
-    //{
-    //    OccupiedPositions.Add(collidersToBF);
-    //    Debug.Log("Event fired and dictionary has " + OccupiedPositions.Count + "entries");
-    //    DropeableFeature.OnMinionDrop -= AddOccupiedPosition;
-    //}
+    void DesactivateDropPosition()
+    {
+        collidersToBF.enabled = false;
+        DropeableFeature.OnDropActions -= DesactivateDropPosition;
+    }
 }
